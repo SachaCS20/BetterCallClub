@@ -1,3 +1,6 @@
+const { expect } = require("chai");
+const { BN, ether } = require("@openzeppelin/test-helpers");
+
 const BCCToken = artifacts.require("BCCToken");
 const BetterCallClub = artifacts.require("BetterCallClub");
 
@@ -26,18 +29,18 @@ contract("BCCToken", function ([owner, teamWallet, user1, user2, user3]) {
     const teamWalletBalance = await bccToken.balanceOf(teamWallet);
     const contractBalance = await bccToken.balanceOf(bccToken.address);
 
-    assert.equal(name, "Better Call Club Token");
-    assert.equal(symbol, "BCC");
-    assert.equal(decimals.toString(), "18");
-    assert.equal(totalSupply.toString(), web3.utils.toWei("21000000", "ether"));
-    assert.equal(teamWalletBalance.toString(), web3.utils.toWei("8400000", "ether"));
-    assert.equal(contractBalance.toString(), web3.utils.toWei("12600000", "ether"));
+    expect(name).to.equal("Better Call Club Token");
+    expect(symbol).to.equal("BCC");
+    expect(decimals).to.be.bignumber.equal(new BN(18));
+    expect(totalSupply).to.be.bignumber.equal(ether("21000000"));
+    expect(teamWalletBalance).to.be.bignumber.equal(ether("8400000"));
+    expect(contractBalance).to.be.bignumber.equal(ether("12600000"));
   });
 
   it("should return correct daily reward for user1", async () => {
     const dailyReward = await bccToken.getDailyReward(user1);
-    const expectedDailyReward = web3.utils.toWei("3833.333333333333333333", "ether");
-    assert.equal(dailyReward.toString(), expectedDailyReward);
+    const expectedDailyReward = ether("3833.333333333333333333");
+    expect(dailyReward).to.be.bignumber.equal(expectedDailyReward);
   });
 
   it("should allow user1 to claim tokens", async () => {
@@ -49,13 +52,13 @@ contract("BCCToken", function ([owner, teamWallet, user1, user2, user3]) {
     const newUserBalance = await bccToken.balanceOf(user1);
     const newContractBalance = await bccToken.balanceOf(bccToken.address);
 
-    assert.equal(initialUserBalance.add(web3.utils.toWei("3833.333333333333333333", "ether")).toString(), newUserBalance.toString());
-    assert.equal(initialContractBalance.sub(web3.utils.toWei("3833.333333333333333333", "ether")).toString(), newContractBalance.toString());
+    expect(newUserBalance).to.be.bignumber.equal(initialUserBalance.add(ether("3833.333333333333333333")));
+    expect(newContractBalance).to.be.bignumber.equal(initialContractBalance.sub(ether("3833.333333333333333333")));
   });
 
   it("should return zero daily reward when user is not eligible", async () => {
     const dailyReward = await bccToken.getDailyReward(user3);
-    assert.equal(dailyReward.toString(), "0");
+    expect(dailyReward).to.be.bignumber.equal(new BN(0));
   });
 
   it("should not allow claiming tokens if no rewards are available", async () => {
@@ -63,11 +66,9 @@ contract("BCCToken", function ([owner, teamWallet, user1, user2, user3]) {
     await bccToken.transfer(teamWallet, await bccToken.balanceOf(bccToken.address), { from: owner });
   
     // Attempt to claim tokens for user1
-    try {
-      await bccToken.claimTokens({ from: user1 });
-      assert.fail("The transaction should have reverted");
-    } catch (error) {
-      assert(error.message.includes("No more rewards available"), `Expected "No more rewards available", but got "${error.message}" instead`);
-    }
+    await expectRevert(
+      bccToken.claimTokens({ from: user1 }),
+      "No more rewards available"
+    );
   });
 });

@@ -2,7 +2,7 @@ const BetterCallClub = artifacts.require("BetterCallClub");
 const BCCStaking = artifacts.require("BCCStaking");
 const IERC20 = artifacts.require("IERC20");
 
-const truffleAssert = require('truffle-assertions');
+const { BN } = require("@openzeppelin/test-helpers");
 
 
 contract("BetterCallClub", (accounts) => {

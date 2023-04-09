@@ -4,7 +4,6 @@ const BetterCallClub = artifacts.require("BetterCallClub");
 const BCCToken = artifacts.require("BCCToken");
 
 const { expect } = require("chai");
-const { BN } = require("@openzeppelin/test-helpers");
 
 contract("BCCFactory", function (accounts) {
   let bccFactory;
