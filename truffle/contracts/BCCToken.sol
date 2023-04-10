@@ -31,7 +31,7 @@ contract BCCToken is ERC20, Ownable {
         uint256 lastClaim = lastClaimTimestamp[user];
         uint256 rewardsToClaim = 0;
 
-        for (uint256 i = lastClaim + 1; i <= dayCounter; i++) {
+        for (uint256 i = lastClaim + 1; i <= betterCallClub.dayCounter; i++) {
             if (betterCallClub.dailyEligibleCallers(i, user)) {
                 uint256 totalEligibleCallers = betterCallClub.dailyTotalEligibleCallers(i);
                 uint256 dailyRewardShare = totalEligibleCallers > 0 ? DAILY_REWARD.div(totalEligibleCallers) : 0;
@@ -54,7 +54,7 @@ contract BCCToken is ERC20, Ownable {
         }
 
         _transfer(address(this), msg.sender, rewardsToClaim);
-        lastClaimTimestamp[msg.sender] = dayCounter;
+        lastClaimTimestamp[msg.sender] = betterCallClub.dayCounter;
     }
     
 }

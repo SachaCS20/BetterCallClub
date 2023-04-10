@@ -190,9 +190,15 @@ contract BetterCallClub is Ownable {
         }
     }
 
-
     function getAllCalls() external view returns (Call[] memory) {
-        return allCalls;
+        uint256 length = callIdCounter;
+        Call[] memory callList = new Call[](length);
+    
+        for (uint256 i = 1; i <= length; i++) {
+            callList[i - 1] = allCalls[i];
+        }
+    
+        return callList;
     }
 
     function acceptedTokensLength() public view returns (uint256) {
@@ -211,16 +217,14 @@ contract BetterCallClub is Ownable {
         require(_lifetimeSubscription > 0, "Lifetime subscription price must be greater than 0");
         require(isTokenAccepted(_acceptedToken), "Accepted token must be in the accepted Tokens list");
 
-        clubs[msg.sender] = Club({
-            clubName: _clubName,
-            caller: msg.sender,
-            pricePerCall: _pricePerCall,
-            weeklySubscription: _weeklySubscription,
-            monthlySubscription: _monthlySubscription,
-            yearlySubscription: _yearlySubscription,
-            lifetimeSubscription: _lifetimeSubscription,
-            acceptedToken: _acceptedToken
-        });
+        clubs[msg.sender].caller = msg.sender;
+        clubs[msg.sender].clubName = _clubName;
+        clubs[msg.sender].pricePerCall = _pricePerCall;
+        clubs[msg.sender].weeklySubscription = _weeklySubscription;
+        clubs[msg.sender].monthlySubscription = _monthlySubscription;
+        clubs[msg.sender].yearlySubscription = _yearlySubscription;
+        clubs[msg.sender].lifetimeSubscription = _lifetimeSubscription;
+        clubs[msg.sender].acceptedToken = _acceptedToken;
 
         emit ClubCreated(msg.sender);
     }
