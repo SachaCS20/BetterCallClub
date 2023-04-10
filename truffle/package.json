@@ -6,6 +6,10 @@
     "test": "truffle test"
   },
   "dependencies": {
-    "@truffle/hdwallet-provider": "^2.1.7"
+    "@chakra-ui/react": "^2.5.5",
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@truffle/hdwallet-provider": "^2.1.7",
+    "framer-motion": "^10.11.2"
   }
 }

@@ -6,17 +6,32 @@ import "./BCCStaking.sol";
 import "./BetterCallClub.sol";
 import "./BCCToken.sol";
 
+
+/**
+ * @title BCCFactory
+ * @notice Contrat pour déployer les contrats BCCStaking, BetterCallClub et BCCToken
+ * @dev Ce contrat permet de déployer les contrats nécessaires et de les configurer correctement
+*/
+
 contract BCCFactory {
     BCCStaking public stakingContract;
     BetterCallClub public betterCallClubContract;
-    BCCToken public bccTokenContract; // stocke l'instance du contrat BCCToken
+    BCCToken public bccTokenContract;
     address public teamWallet;
 
+/**
+ * @notice Construit le contrat BCCFactory
+ * @param _teamWallet L'adresse du portefeuille de l'équipe
+*/
     constructor(address _teamWallet) {
         require(_teamWallet != address(0), "Team wallet address cannot be zero");
         teamWallet = _teamWallet;
     }
 
+/**
+ * @notice Déploie les contrats BCCStaking, BetterCallClub et BCCToken
+ * @dev Cette fonction déploie les contrats et les configure correctement
+*/
     function deployContracts() external {
         // Deploy BCCStaking contract
         stakingContract = new BCCStaking(address(0)); // Temporary address

@@ -7,6 +7,11 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./BCCStaking.sol";
 
+/**
+ * @title BetterCallClub
+ * @author Sacha COHEN SOLAL
+ * @dev Gestion des clubs, des appels et des abonnements des utilisateurs.
+ */
 
 contract BetterCallClub is Ownable {
     using SafeMath for uint256;
@@ -63,7 +68,8 @@ contract BetterCallClub is Ownable {
     uint256 public constant CALL_PROTOCOL_FEE_PERCENTAGE = 12;
     uint256 public constant CALL_TEAM_FEE_PERCENTAGE = 8;
     uint256 public constant CALL_CALLER_FEE_PERCENTAGE = 80;
-    address[] public acceptedTokens = [address(0xe9DcE89B076BA6107Bb64EF30678efec11939234), address(0xAcDe43b9E5f72a4F554D4346e69e8e7AC8F352f0), address(0xF14f9596430931E177469715c591513308244e8F), address(0xD087ff96281dcf722AEa82aCA57E8545EA9e6C96), address(0x97e8dE167322a3bCA28E8A49BC46F6Ce128FEC68)]; // Remplacer par les adresses réelles des tokens acceptés (USDC, USDT, DAI, WETH, WBTC)
+    //(USDC, USDT, DAI, WETH, WBTC on Mumbai) :
+    address[] public acceptedTokens = [address(0xe9DcE89B076BA6107Bb64EF30678efec11939234), address(0xAcDe43b9E5f72a4F554D4346e69e8e7AC8F352f0), address(0xF14f9596430931E177469715c591513308244e8F), address(0xD087ff96281dcf722AEa82aCA57E8545EA9e6C96), address(0x97e8dE167322a3bCA28E8A49BC46F6Ce128FEC68)];
     BCCStaking public stakingContract;
     address public teamWallet = address(0x2ca57255E54D5e6b4B7e745C49ae6D37D9781743);
     uint256 public constant MAX_CALL_DURATION = 182 days; // Maximum call duration of 6 months
@@ -82,13 +88,9 @@ contract BetterCallClub is Ownable {
     uint256[] public ongoingCallIndices; //stocke les indices des calls Ongoing
     mapping(uint256 => Call) public calls2;
     mapping(address => UserProfile) public userProfiles;
-    //mapping(address => mapping(uint256 => UserSubscription)) public userSubscriptions;
     mapping(uint256 => mapping(address => bool)) public dailyEligibleCallers;
     uint256 public dayCounter;
     mapping(uint256 => uint256) public dailyTotalEligibleCallers;
-
-
-    
 
     // Modifiers
     modifier onlyCallOwner(uint256 _callId) {
@@ -121,14 +123,12 @@ contract BetterCallClub is Ownable {
 
     constructor(address _stakingContract, address _bccToken) {
         stakingContract = BCCStaking(_stakingContract);
-        //stakingWallet = _stakingContract; // Set stakingWallet to staking contract address
         bccToken = IERC20(_bccToken);
         dayCounter = 1;
     }
 
     // Fonctions principales
-
-    // Créer un profil utilisateur
+    
     function createUserProfile(string memory _username) external {
         require(bytes(userProfiles[msg.sender].username).length == 0, "Profile already exists");
         userProfiles[msg.sender].username = _username;

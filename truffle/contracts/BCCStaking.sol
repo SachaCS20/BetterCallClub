@@ -12,6 +12,12 @@ interface IBetterCallClub {
         function getAcceptedTokens(uint256 index) external view returns (address);
 }
 
+
+/**
+ * @title BCCStaking
+ * @notice Contrat permettant de staker des BCC et de claim les fees du protocole au prorata du staking pour les utilisateurs
+ * @dev Ce contrat gère le staking du token BCC et la distribution des fees
+ */
 contract BCCStaking is Ownable {
     using SafeMath for uint256;
 
@@ -29,6 +35,10 @@ contract BCCStaking is Ownable {
         uint256 totalFees;
     }
 
+/**
+ * @notice Construit le contrat BCCStaking
+ * @param _stakingToken L'adresse du token utilisé pour le staking (BCC)
+*/
     constructor(address _stakingToken) {
         stakingToken = IERC20(_stakingToken);
     }
@@ -38,6 +48,10 @@ contract BCCStaking is Ownable {
         _;
     }
 
+/**
+ * @notice Fait passer l'adresse du contrat BetterCallClub (appelé par le script de déploiement)
+ * @param _betterCallClub L'adresse du contrat BetterCallClub
+*/
     function setBetterCallClub(address _betterCallClub) external onlyOwner {
         betterCallClub = IBetterCallClub(_betterCallClub);
     }
@@ -45,6 +59,11 @@ contract BCCStaking is Ownable {
     function updateStakingToken(address _stakingToken) external onlyOwner {
         stakingToken = IERC20(_stakingToken);
     }
+
+/**
+ * @notice Permet à un utilisateur de stake ses BCC
+ * @param _amount Le montant de tokens à stake
+*/
 
     function stake(uint256 _amount) external {
         require(_amount > 0, "Cannot stake zero tokens");
@@ -56,6 +75,10 @@ contract BCCStaking is Ownable {
         totalStaked = totalStaked.add(_amount);
     }
 
+/**
+ * @notice Permet à un utilisateur d'unstake ses BCC
+ * @param _amount Le montant de tokens à unstake
+*/
     function unstake(uint256 _amount) external {
         stakedBalance[msg.sender] = stakedBalance[msg.sender].sub(_amount);
         totalStaked = totalStaked.sub(_amount);
@@ -73,6 +96,9 @@ contract BCCStaking is Ownable {
         }
     }
 
+/**
+ * @notice Permet à un utilisateur de réclamer toutes ses fees en une fois (dans les tokens stockés dans acceptedTokens dans BetterCallClub.sol)
+*/
     function claim() external {
         for (uint256 i = 0; i < betterCallClub.acceptedTokensLength(); i++) {
             address tokenAddress = betterCallClub.getAcceptedTokens(i);
@@ -96,7 +122,11 @@ contract BCCStaking is Ownable {
         return stakers.length;
     }
 
-
+/**
+ * @notice Met à jour les frais des utilisateurs lorsqu'un nouveau call est effectué
+ * @param _tokenAddress L'adresse du token pour lequel les frais sont mis à jour
+ * @param _feesAmount Le montant des fees à ajouter
+*/
     function updateUserFees(address _tokenAddress, uint256 _feesAmount) external onlyBetterCallClub {
         require(tokenInfo[_tokenAddress].token != IERC20(address(0)), "Token not registered");
         tokenInfo[_tokenAddress].totalFees = tokenInfo[_tokenAddress].totalFees.add(_feesAmount);
