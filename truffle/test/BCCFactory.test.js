@@ -7,9 +7,10 @@ const { expect } = require("chai");
 
 contract("BCCFactory", function (accounts) {
   let bccFactory;
+  const teamWallet = "0x2ca57255E54D5e6b4B7e745C49ae6D37D9781743"
 
   beforeEach(async () => {
-    bccFactory = await BCCFactory.new();
+    bccFactory = await BCCFactory.new(teamWallet);
   });
 
   it("should deploy the BCCStaking, BetterCallClub, and BCCToken contracts correctly", async () => {
@@ -71,7 +72,7 @@ contract("BCCFactory", function (accounts) {
   });
   
   it("should allow multiple contract deployments from different accounts", async () => {
-    const bccFactory2 = await BCCFactory.new({ from: accounts[1] });
+    const bccFactory2 = await BCCFactory.new(teamWallet, { from: accounts[1] });
   
     await bccFactory.deployContracts();
     await bccFactory2.deployContracts();

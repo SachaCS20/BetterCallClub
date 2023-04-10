@@ -27,14 +27,19 @@ contract BCCToken is ERC20, Ownable {
         _mint(address(this), TOTAL_SUPPLY - TEAM_ALLOCATION);
     }
 
+    function updateBetterCallClub(address _betterCallClub) external onlyOwner {
+        require(_betterCallClub != address(0), "BetterCallClub address cannot be zero");
+        betterCallClub = BetterCallClub(_betterCallClub);
+    }
+
     function getDailyReward(address user) public view returns (uint256) {
         uint256 lastClaim = lastClaimTimestamp[user];
         uint256 rewardsToClaim = 0;
 
-        for (uint256 i = lastClaim + 1; i <= betterCallClub.dayCounter; i++) {
+        for (uint256 i = lastClaim + 1; i <= betterCallClub.dayCounter(); i++) {
             if (betterCallClub.dailyEligibleCallers(i, user)) {
                 uint256 totalEligibleCallers = betterCallClub.dailyTotalEligibleCallers(i);
-                uint256 dailyRewardShare = totalEligibleCallers > 0 ? DAILY_REWARD.div(totalEligibleCallers) : 0;
+                uint256 dailyRewardShare = totalEligibleCallers > 0 ? DAILY_REWARD / totalEligibleCallers : 0;
                 rewardsToClaim += dailyRewardShare;
             }
         }
@@ -54,7 +59,7 @@ contract BCCToken is ERC20, Ownable {
         }
 
         _transfer(address(this), msg.sender, rewardsToClaim);
-        lastClaimTimestamp[msg.sender] = betterCallClub.dayCounter;
+        lastClaimTimestamp[msg.sender] = betterCallClub.dayCounter();
     }
     
 }

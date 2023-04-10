@@ -65,7 +65,7 @@ contract BetterCallClub is Ownable {
     uint256 public constant CALL_CALLER_FEE_PERCENTAGE = 80;
     address[] public acceptedTokens = [address(0xe9DcE89B076BA6107Bb64EF30678efec11939234), address(0xAcDe43b9E5f72a4F554D4346e69e8e7AC8F352f0), address(0xF14f9596430931E177469715c591513308244e8F), address(0xD087ff96281dcf722AEa82aCA57E8545EA9e6C96), address(0x97e8dE167322a3bCA28E8A49BC46F6Ce128FEC68)]; // Remplacer par les adresses réelles des tokens acceptés (USDC, USDT, DAI, WETH, WBTC)
     BCCStaking public stakingContract;
-    address public teamWallet = address(0); //Remplacer par l'adresse Ethereum de la Team
+    address public teamWallet = address(0x2ca57255E54D5e6b4B7e745C49ae6D37D9781743);
     uint256 public constant MAX_CALL_DURATION = 182 days; // Maximum call duration of 6 months
     IERC20 public bccToken;
     
@@ -230,13 +230,13 @@ contract BetterCallClub is Ownable {
     }
 
     // Récupère le nombre d'abonnés d'un compte
-    function getClubSubscribersCount(uint256 _clubId) external view returns (uint256) {
-        return clubs[_clubId].subscribersCount;
+    function getClubSubscribersCount(address _clubAddress) external view returns (uint256) {
+        return clubs[_clubAddress].subscribersCount;
     }
 
     //Récupère la liste des membres d'un club
-    function getClubSubscribers(uint256 _clubId, address _user) external view returns (bool) {
-        return clubs[_clubId].subscribers[_user];
+    function getClubSubscribers(address _clubAddress, address _user) external view returns (bool) {
+        return clubs[_clubAddress].subscribers[_user];
     }
 
     function updateClub(uint256 _pricePerCall, uint256 _weeklySubscription, uint256 _monthlySubscription, uint256 _yearlySubscription, uint256 _lifetimeSubscription, address _acceptedToken) external onlyClubOwner(msg.sender) {
@@ -299,13 +299,13 @@ contract BetterCallClub is Ownable {
     }
 
     // Add a function that requires the user to be subscribed or have paid for the specific call
-    function accessCall(uint256 _callId) external onlySubscribedUser(allCalls[_callId].caller){
+    function accessCall(uint256 _callId) external onlySubscribedUser(allCalls[_callId].caller, _callId){
     // The user can access the call since the modifier onlySubscribedUser has passed
     }
 
     function payPerCall(uint256 _callId) external {
         Call memory _call = allCalls[_callId];
-        Club memory _club = clubs[_call.caller];
+        Club storage _club = clubs[_call.caller];
         require(_club.pricePerCall > 0, "Price per call must be greater than 0");
         
         // Transfer the fee for the call
